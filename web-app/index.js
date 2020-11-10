@@ -8,7 +8,7 @@ const express = require('express')
 
 const app = express()
 const cacheTimeSecs = 15
-const numberOfMissions = 30
+const numberOfProducts = 7
 
 // -------------------------------------------------------
 // Command-line options
@@ -144,13 +144,13 @@ function sendResponse(res, html, cachedResult) {
 			<title>Big Data Use-Case Demo</title>
 			<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.1/mini-default.min.css">
 			<script>
-				function fetchRandomMissions() {
+				function fetchRandomProducts() {
 					const maxRepetitions = Math.floor(Math.random() * 200)
-					document.getElementById("out").innerText = "Fetching " + maxRepetitions + " random missions, see console output"
+					document.getElementById("out").innerText = "Fetching " + maxRepetitions + " random products, see console output"
 					for(var i = 0; i < maxRepetitions; ++i) {
-						const missionId = Math.floor(Math.random() * ${numberOfMissions})
-						console.log("Fetching mission id " + missionId)
-						fetch("/missions/sts-" + missionId, {cache: 'no-cache'})
+						const productId = Math.floor(Math.random() * ${numberOfProducts})
+						console.log("Fetching product id " + productId)
+						fetch("/products/p-" + productId, {cache: 'no-cache'})
 					}
 				}
 			</script>
@@ -158,7 +158,7 @@ function sendResponse(res, html, cachedResult) {
 		<body>
 			<h1>Big Data Use Case Demo</h1>
 			<p>
-				<a href="javascript: fetchRandomMissions();">Randomly fetch some missions</a>
+				<a href="javascript: fetchRandomProducts();">Randomly fetch some products</a>
 				<span id="out"></span>
 			</p>
 			${html}
@@ -179,9 +179,9 @@ function sendResponse(res, html, cachedResult) {
 // Start page
 // -------------------------------------------------------
 
-// Get list of missions (from cache or db)
-async function getMissions() {
-	const key = 'missions'
+// Get list of products (from cache or db)
+async function getProducts() {
+	const key = 'products'
 	let cachedata = await getFromCache(key)
 
 	if (cachedata) {
@@ -189,7 +189,7 @@ async function getMissions() {
 		return { result: cachedata, cached: true }
 	} else {
 		console.log(`Cache miss for key=${key}, querying database`)
-		let executeResult = await executeQuery("SELECT mission FROM missions", [])
+		let executeResult = await executeQuery("SELECT product FROM products", [])
 		let data = executeResult.fetchAll()
 		if (data) {
 			let result = data.map(row => row[0])
@@ -198,53 +198,53 @@ async function getMissions() {
 				await memcached.set(key, result, cacheTimeSecs);
 			return { result, cached: false }
 		} else {
-			throw "No missions data found"
+			throw "No products data found"
 		}
 	}
 }
 
-// Get popular missions (from db only)
+// Get popular products (from db only)
 async function getPopular(maxCount) {
-	const query = "SELECT mission, count FROM popular ORDER BY count DESC LIMIT ?"
+	const query = "SELECT product, count FROM popular ORDER BY count DESC LIMIT ?"
 	return (await executeQuery(query, [maxCount]))
 		.fetchAll()
-		.map(row => ({ mission: row[0], count: row[1] }))
+		.map(row => ({ product: row[0], count: row[1] }))
 }
 
 // Return HTML for start page
 app.get("/", (req, res) => {
 	const topX = 10;
-	Promise.all([getMissions(), getPopular(topX)]).then(values => {
-		const missions = values[0]
+	Promise.all([getProducts(), getPopular(topX)]).then(values => {
+		const products = values[0]
 		const popular = values[1]
 
-		const missionsHtml = missions.result
-			.map(m => `<a href='missions/${m}'>${m}</a>`)
+		const productsHtml = products.result
+			.map(m => `<a href='products/${m}'>${m}</a>`)
 			.join(", ")
 
 		const popularHtml = popular
-			.map(pop => `<li> <a href='missions/${pop.mission}'>${pop.mission}</a> (${pop.count} views) </li>`)
+			.map(pop => `<li> <a href='products/${pop.product}'>${pop.product}</a> (${pop.count} views) </li>`)
 			.join("\n")
 
 		const html = `
-			<h1>Top ${topX} Missions</h1>		
+			<h1>Top ${topX} Products</h1>		
 			<p>
 				<ol style="margin-left: 2em;"> ${popularHtml} </ol> 
 			</p>
-			<h1>All Missions</h1>
-			<p> ${missionsHtml} </p>
+			<h1>All Products</h1>
+			<p> ${productsHtml} </p>
 		`
-		sendResponse(res, html, missions.cached)
+		sendResponse(res, html, products.cached)
 	})
 })
 
 // -------------------------------------------------------
-// Get a specific mission (from cache or DB)
+// Get a specific product (from cache or DB)
 // -------------------------------------------------------
 
-async function getMission(mission) {
-	const query = "SELECT mission, heading, description FROM missions WHERE mission = ?"
-	const key = 'mission_' + mission
+async function getProduct(product) {
+	const query = "SELECT product, heading, description FROM products WHERE product = ?"
+	const key = 'product_' + product
 	let cachedata = await getFromCache(key)
 
 	if (cachedata) {
@@ -253,32 +253,32 @@ async function getMission(mission) {
 	} else {
 		console.log(`Cache miss for key=${key}, querying database`)
 
-		let data = (await executeQuery(query, [mission])).fetchOne()
+		let data = (await executeQuery(query, [product])).fetchOne()
 		if (data) {
-			let result = { mission: data[0], heading: data[1], description: data[2] }
+			let result = { product: data[0], heading: data[1], description: data[2] }
 			console.log(`Got result=${result}, storing in cache`)
 			if (memcached)
 				await memcached.set(key, result, cacheTimeSecs);
 			return { ...result, cached: false }
 		} else {
-			throw "No data found for this mission"
+			throw "No data found for this product"
 		}
 	}
 }
 
-app.get("/missions/:mission", (req, res) => {
-	let mission = req.params["mission"]
+app.get("/products/:product", (req, res) => {
+	let product = req.params["product"]
 
 	// Send the tracking message to Kafka
 	sendTrackingMessage({
-		mission,
+		product,
 		timestamp: Math.floor(new Date() / 1000)
 	}).then(() => console.log("Sent to kafka"))
 		.catch(e => console.log("Error sending to kafka", e))
 
 	// Send reply to browser
-	getMission(mission).then(data => {
-		sendResponse(res, `<h1>${data.mission}</h1><p>${data.heading}</p>` +
+	getProduct(product).then(data => {
+		sendResponse(res, `<h1>${data.product}</h1><p>${data.heading}</p>` +
 			data.description.split("\n").map(p => `<p>${p}</p>`).join("\n"),
 			data.cached
 		)
