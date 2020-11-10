@@ -29,7 +29,7 @@ kafkaMessages = spark \
 
 # Define schema of tracking data
 trackingMessageSchema = StructType() \
-    .add("mission", StringType()) \
+    .add("product", StringType()) \
     .add("timestamp", IntegerType())
 
 # Example Part 3
@@ -49,7 +49,7 @@ trackingMessages = kafkaMessages.select(
     # Select all JSON fields
     column("json.*")
 ) \
-    .withColumnRenamed('json.mission', 'mission') \
+    .withColumnRenamed('json.product', 'product') \
     .withWatermark("parsed_timestamp", windowDuration)
 
 # Example Part 4
@@ -60,7 +60,7 @@ popular = trackingMessages.groupBy(
         windowDuration,
         slidingDuration
     ),
-    column("mission")
+    column("product")
 ).count().withColumnRenamed('count', 'views')
 
 # Example Part 5
@@ -86,9 +86,9 @@ def saveToDatabase(batchDataframe, batchId):
         for row in iterator:
             # Run upsert (insert or update existing)
             sql = session.sql("INSERT INTO popular "
-                              "(mission, count) VALUES (?, ?) "
+                              "(product, count) VALUES (?, ?) "
                               "ON DUPLICATE KEY UPDATE count=?")
-            sql.bind(row.mission, row.views, row.views).execute()
+            sql.bind(row.product, row.views, row.views).execute()
 
         session.close()
 
