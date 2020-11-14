@@ -7,7 +7,7 @@ ENV NODE_ENV $NODE_ENV
 
 # Install dependencies
 WORKDIR /app
-COPY package.json package-lock.json /app/
+COPY package.json package-lock.json /app/ index.html
 RUN npm install --no-optional && npm cache clean --force
 
 # Install app
