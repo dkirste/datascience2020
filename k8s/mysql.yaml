@@ -13,7 +13,7 @@ data:
     );
 
     CREATE TABLE `popular` (
-      `mission` VARCHAR(30) NOT NULL,
+      `product` VARCHAR(30) NOT NULL,
       `count` BIGINT,
        PRIMARY KEY (`product`)
     );
