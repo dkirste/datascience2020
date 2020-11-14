@@ -11,7 +11,7 @@ COPY package.json package-lock.json /app/
 RUN npm install --no-optional && npm cache clean --force
 
 # Install app
-COPY *.js /app/
+COPY *.js /app/ /materialize/ /css/ /js/
 
 # Export app port and set entrypoint at startup
 EXPOSE 3000
