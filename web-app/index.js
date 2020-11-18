@@ -271,10 +271,10 @@ async function getProducts() {
 		return { result: cachedata, cached: true }
 	} else {
 		console.log(`Cache miss for key=${key}, querying database`)
-		let executeResult = await executeQuery("SELECT product FROM products", [])
+		let executeResult = await executeQuery("SELECT * FROM products", [])
 		let data = executeResult.fetchAll()
 		if (data) {
-			let result = data.map(row => row[0])
+			let result = data.map(row => row)
 			console.log(`Got result=${result}, storing in cache`)
 			if (memcached)
 				await memcached.set(key, result, cacheTimeSecs);
@@ -298,6 +298,7 @@ app.get("/", (req, res) => {
 	const topX = 10;
 	Promise.all([getProducts(), getPopular(topX)]).then(values => {
 		const products = values[0]
+		console.log(values[0])
 		const popular = values[1]
 
 		const productsHtml = products.result
@@ -321,10 +322,10 @@ app.get("/", (req, res) => {
 		<div class="card">
 			<div class="card-image">
 				<img src="https://cdn.pixabay.com/photo/2016/08/14/14/54/tablet-1593045_1280.png">
-				<span class="card-title" style="width:100%; background: rgba(0, 0, 0, 0.5);">${m}</span>
+				<span class="card-title" style="width:100%; background: rgba(0, 0, 0, 0.5);">${m[2]}</span>
 			</div>
 			<div class="card-content">
-				<p>I am a very simple card. I am good at containing small bits of information. I am convenient because I require little markup to use effectively.</p>
+				<p>${m[1]}</p>
 			</div>
 			<div class="card-action">
 				<a href="#">Buy this article</a>
@@ -378,6 +379,7 @@ app.get("/products/:product", (req, res) => {
 		.catch(e => console.log("Error sending to kafka", e))
 
 	// Send reply to browser
+
 	getProduct(product).then(data => {
 		sendResponse(res, `<h1>${data.product}</h1><p>${data.heading}</p>` +
 			data.description.split("\n").map(p => `<p>${p}</p>`).join("\n"),
