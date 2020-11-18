@@ -321,7 +321,7 @@ app.get("/", (req, res) => {
 		.map(m => `<div class="col m4">
 		<div class="card">
 			<div class="card-image">
-				<img src="https://cdn.pixabay.com/photo/2016/08/14/14/54/tablet-1593045_1280.png">
+				<img src="${m[3]}">
 				<span class="card-title" style="width:100%; background: rgba(0, 0, 0, 0.5);">${m[2]}</span>
 			</div>
 			<div class="card-content">
