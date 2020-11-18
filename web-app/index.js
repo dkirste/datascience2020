@@ -173,16 +173,58 @@ function sendResponse(res, html, cachedResult) {
 	  </div>
 	  <div class="container">
 		<div class="section">
+		
 	
 		  <!--   Icon Section   -->
-		  <div class="row">
-
-		  </div>
+			<div class="row">
+				<div class="col m4">
+					<div class="card">
+						<div class="card-image">
+							<img src="https://cdn.pixabay.com/photo/2016/08/14/14/54/tablet-1593045_1280.png">
+							<span class="card-title" style="width:100%; background: rgba(0, 0, 0, 0.5);">Tablet</span>
+						</div>
+						<div class="card-content">
+							<p>I am a very simple card. I am good at containing small bits of information. I am convenient because I require little markup to use effectively.</p>
+						</div>
+						<div class="card-action">
+							<a href="#">Buy this article</a>
+					  	</div>
+					</div>
+				</div>
+				<div class="col m4">
+					<div class="card">
+						<div class="card-image">
+							<img src="http://www.ilikewallpaper.net/ipad-wallpapers/download/2268/Square-Pattern-ipad-wallpaper-ilikewallpaper_com.jpg">
+							<span class="card-title" style="width:100%; background: rgba(0, 0, 0, 0.5);">Sample1</span>
+						</div>
+						<div class="card-content">
+							<p>I am a very simple card. I am good at containing small bits of information. I am convenient because I require little markup to use effectively.</p>
+						</div>
+						<div class="card-action">
+							<a href="#">Buy this article</a>
+					  	</div>
+					</div>
+				</div>
+				<div class="col m4">
+				<div class="card">
+					<div class="card-image">
+						<img src="http://www.ilikewallpaper.net/ipad-wallpapers/download/2268/Square-Pattern-ipad-wallpaper-ilikewallpaper_com.jpg">
+						<span class="card-title" style="width:100%; background: rgba(0, 0, 0, 0.5);">Sample1</span>
+					</div>
+					<div class="card-content">
+						<p>I am a very simple card. I am good at containing small bits of information. I am convenient because I require little markup to use effectively.</p>
+					</div>
+					<div class="card-action">
+							<a href="#">Buy this article</a>
+					</div>
+				</div>
+			</div>
+			</div>
 		  <div class="row">
 			<div class="col s12 m4">
 			  <div class="icon-block">
 				<h2 class="center light-blue-text"><i class="material-icons">flash_on</i></h2>
-				<h5 class="center">Speeds up development</h5>
+				<h5 class="center">Top 5 Products in last 10 Minutes!</h5>
 	
 				<p class="light">We did most of the heavy lifting for you to provide a default stylings that incorporate our custom components. Additionally, we refined animations and transitions to provide a smoother experience for developers.</p>
 			  </div>
@@ -191,7 +233,7 @@ function sendResponse(res, html, cachedResult) {
 			<div class="col s12 m4">
 			  <div class="icon-block">
 				<h2 class="center light-blue-text"><i class="material-icons">group</i></h2>
-				<h5 class="center">User Experience Focused</h5>
+				<h5 class="center">Bestselling products alltime!</h5>
 	
 				<p class="light">By utilizing elements and principles of Material Design, we were able to create a framework that incorporates components and animations that provide more feedback to users. Additionally, a single underlying responsive system across all platforms allow for a more unified user experience.</p>
 			  </div>
