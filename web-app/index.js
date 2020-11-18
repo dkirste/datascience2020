@@ -135,7 +135,7 @@ async function sendTrackingMessage(data) {
 // HTML helper to send a response to the client
 // -------------------------------------------------------
 
-function sendResponse(res, html, cachedResult) {
+function sendResponse(res, html, cachedResult, htmlProducts) {
 	res.send(`<!DOCTYPE html>
 	<html lang<="en">
 	<head>
@@ -176,50 +176,7 @@ function sendResponse(res, html, cachedResult) {
 		
 	
 		  <!--   Icon Section   -->
-			<div class="row">
-				<div class="col m4">
-					<div class="card">
-						<div class="card-image">
-							<img src="https://cdn.pixabay.com/photo/2016/08/14/14/54/tablet-1593045_1280.png">
-							<span class="card-title" style="width:100%; background: rgba(0, 0, 0, 0.5);">Tablet</span>
-						</div>
-						<div class="card-content">
-							<p>I am a very simple card. I am good at containing small bits of information. I am convenient because I require little markup to use effectively.</p>
-						</div>
-						<div class="card-action">
-							<a href="#">Buy this article</a>
-					  	</div>
-					</div>
-				</div>
-				<div class="col m4">
-					<div class="card">
-						<div class="card-image">
-							<img src="http://www.ilikewallpaper.net/ipad-wallpapers/download/2268/Square-Pattern-ipad-wallpaper-ilikewallpaper_com.jpg">
-							<span class="card-title" style="width:100%; background: rgba(0, 0, 0, 0.5);">Sample1</span>
-						</div>
-						<div class="card-content">
-							<p>I am a very simple card. I am good at containing small bits of information. I am convenient because I require little markup to use effectively.</p>
-						</div>
-						<div class="card-action">
-							<a href="#">Buy this article</a>
-					  	</div>
-					</div>
-				</div>
-				<div class="col m4">
-				<div class="card">
-					<div class="card-image">
-						<img src="http://www.ilikewallpaper.net/ipad-wallpapers/download/2268/Square-Pattern-ipad-wallpaper-ilikewallpaper_com.jpg">
-						<span class="card-title" style="width:100%; background: rgba(0, 0, 0, 0.5);">Sample1</span>
-					</div>
-					<div class="card-content">
-						<p>I am a very simple card. I am good at containing small bits of information. I am convenient because I require little markup to use effectively.</p>
-					</div>
-					<div class="card-action">
-							<a href="#">Buy this article</a>
-					</div>
-				</div>
-			</div>
-			</div>
+			${htmlProducts}
 		  <div class="row">
 			<div class="col s12 m4">
 			  <div class="icon-block">
@@ -359,7 +316,26 @@ app.get("/", (req, res) => {
 			<h1>All Products</h1>
 			<p> ${productsHtml} </p>
 		`
-		sendResponse(res, html, products.cached)
+		const productsHtmlNeu = products.result
+		.map(m => `<div class="col m4">
+		<div class="card">
+			<div class="card-image">
+				<img src="https://cdn.pixabay.com/photo/2016/08/14/14/54/tablet-1593045_1280.png">
+				<span class="card-title" style="width:100%; background: rgba(0, 0, 0, 0.5);">${m}</span>
+			</div>
+			<div class="card-content">
+				<p>I am a very simple card. I am good at containing small bits of information. I am convenient because I require little markup to use effectively.</p>
+			</div>
+			<div class="card-action">
+				<a href="#">Buy this article</a>
+			</div>
+			</div>
+		</div>`)
+		.join("")
+		const htmlProducts = `
+		<div class="row">${productsHtmlNeu}</div>
+		`
+		sendResponse(res, html, products.cached, htmlProducts)
 	})
 })
 
@@ -401,6 +377,15 @@ app.get("/products/:product", (req, res) => {
 	}).then(() => console.log("Sent to kafka"))
 		.catch(e => console.log("Error sending to kafka", e))
 
+	// Send reply to browser
+	getProduct(product).then(data => {
+		sendResponse(res, `<h1>${data.product}</h1><p>${data.heading}</p>` +
+			data.description.split("\n").map(p => `<p>${p}</p>`).join("\n"),
+			data.cached
+		)
+	}).catch(err => {
+		sendResponse(res, `<h1>Error</h1><p>${err}</p>`, false)
+	})
 	// Send reply to browser
 	getProduct(product).then(data => {
 		sendResponse(res, `<h1>${data.product}</h1><p>${data.heading}</p>` +
