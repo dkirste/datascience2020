@@ -8,7 +8,7 @@ const express = require('express')
 
 const app = express()
 const cacheTimeSecs = 15
-const numberOfMissions = 30
+const numberOfProducts = 7
 
 // -------------------------------------------------------
 // Command-line options
@@ -135,17 +135,140 @@ async function sendTrackingMessage(data) {
 // HTML helper to send a response to the client
 // -------------------------------------------------------
 
+<<<<<<< HEAD
 function sendResponse(res, html, cachedResult) {
 	res.sendFile('./index.html')
+=======
+function sendResponse(res, html, cachedResult, htmlProducts) {
+	res.send(`<!DOCTYPE html>
+	<html lang<="en">
+	<head>
+	  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
+	  <title>Best Webshop in the WWW</title>
+	
+	  <!-- CSS  -->
+	  <link rel = "stylesheet" href = "https://fonts.googleapis.com/icon?family=Material+Icons">
+   	  <link rel = "stylesheet" href = "https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
+   	  
+	</head>
+	<body>
+	  <nav class="light-blue lighten-1" role="navigation">
+		<div class="nav-wrapper container">
+		  <ul class="right hide-on-med-and-down">
+			<li><a href="#">Login</a></li>
+		  </ul>
+	
+		  <ul id="nav-mobile" class="sidenav">
+			<li><a href="#">Homepage</a></li>
+		  </ul>
+		  <a href="#" data-target="nav-mobile" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+		</div>
+	  </nav>
+	  <div class="section no-pad-bot" id="index-banner">
+		<div class="container">
+		  <br><br>
+		  <h1 class="header center blue-text">Webshop for Products</h1>
+		  <div class="row center">
+			<h5 class="header col s12 light">You have accepted the commercialization of your data. Thank you!</h5>
+		  </div>
+		  <br><br>
+		</div>
+	  </div>
+	  <div class="container">
+		<div class="section">
+		
+	
+		  <!--   Icon Section   -->
+			${htmlProducts}
+		  <div class="row">
+			<div class="col s12 m4">
+			  <div class="icon-block">
+				<h2 class="center light-blue-text"><i class="material-icons">flash_on</i></h2>
+				<h5 class="center">Top 5 Products in last 10 Minutes!</h5>
+	
+				<p class="light">We did most of the heavy lifting for you to provide a default stylings that incorporate our custom components. Additionally, we refined animations and transitions to provide a smoother experience for developers.</p>
+			  </div>
+			</div>
+	
+			<div class="col s12 m4">
+			  <div class="icon-block">
+				<h2 class="center light-blue-text"><i class="material-icons">group</i></h2>
+				<h5 class="center">Bestselling products alltime!</h5>
+	
+				<p class="light">By utilizing elements and principles of Material Design, we were able to create a framework that incorporates components and animations that provide more feedback to users. Additionally, a single underlying responsive system across all platforms allow for a more unified user experience.</p>
+			  </div>
+			</div>
+	
+			<div class="col s12 m4">
+			  <div class="icon-block">
+				<h2 class="center light-blue-text"><i class="material-icons">settings</i></h2>
+				<h5 class="center">Easy to work with</h5>
+	
+				<p class="light">We have provided detailed documentation as well as specific code examples to help new users get started. We are also always open to feedback and can answer any questions a user may have about Materialize.</p>
+			  </div>
+			</div>
+		  </div>
+	
+		</div>
+		<br><br>
+	  </div>
+	
+	  <footer class="page-footer orange">
+		<div class="container">
+		  <div class="row">
+			<div class="col l6 s12">
+			  <h5 class="white-text">Company Bio</h5>
+			  <p class="grey-text text-lighten-4">We are a team of college students working on this project like it's our full time job. Any amount would help support and continue development on this project and is greatly appreciated.</p>
+	
+	
+			</div>
+			<div class="col l3 s12">
+			  <h5 class="white-text">Settings</h5>
+			  <ul>
+				<li><a class="white-text" href="#!">Link 1</a></li>
+				<li><a class="white-text" href="#!">Link 2</a></li>
+				<li><a class="white-text" href="#!">Link 3</a></li>
+				<li><a class="white-text" href="#!">Link 4</a></li>
+			  </ul>
+			</div>
+			<div class="col l3 s12">
+			  <h5 class="white-text">Connect</h5>
+			  <ul>
+				<li><a class="white-text" href="#!">Link 1</a></li>
+				<li><a class="white-text" href="#!">Link 2</a></li>
+				<li><a class="white-text" href="#!">Link 3</a></li>
+				<li><a class="white-text" href="#!">Link 4</a></li>
+			  </ul>
+			</div>
+		  </div>
+		</div>
+		<div class="footer-copyright">
+		  <div class="container">
+		  Made by <a class="orange-text text-lighten-3" href="http://materializecss.com">Materialize</a>
+		  </div>
+		</div>
+	  </footer>
+	
+	
+	  <!--  Scripts-->
+	  <script type = "text/javascript" src = "https://code.jquery.com/jquery-2.1.1.min.js"></script>           
+   	  <script src = "https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js"></script> 
+	  <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+	
+	  </body>
+	</html>
+	`)
+>>>>>>> origin/LoadFromDatabase
 }
 
 // -------------------------------------------------------
 // Start page
 // -------------------------------------------------------
 
-// Get list of missions (from cache or db)
-async function getMissions() {
-	const key = 'missions'
+// Get list of products (from cache or db)
+async function getProducts() {
+	const key = 'products'
 	let cachedata = await getFromCache(key)
 
 	if (cachedata) {
@@ -153,62 +276,82 @@ async function getMissions() {
 		return { result: cachedata, cached: true }
 	} else {
 		console.log(`Cache miss for key=${key}, querying database`)
-		let executeResult = await executeQuery("SELECT mission FROM missions", [])
+		let executeResult = await executeQuery("SELECT * FROM products", [])
 		let data = executeResult.fetchAll()
 		if (data) {
-			let result = data.map(row => row[0])
+			let result = data.map(row => row)
 			console.log(`Got result=${result}, storing in cache`)
 			if (memcached)
 				await memcached.set(key, result, cacheTimeSecs);
 			return { result, cached: false }
 		} else {
-			throw "No missions data found"
+			throw "No products data found"
 		}
 	}
 }
 
-// Get popular missions (from db only)
+// Get popular products (from db only)
 async function getPopular(maxCount) {
-	const query = "SELECT mission, count FROM popular ORDER BY count DESC LIMIT ?"
+	const query = "SELECT product, count FROM popular ORDER BY count DESC LIMIT ?"
 	return (await executeQuery(query, [maxCount]))
 		.fetchAll()
-		.map(row => ({ mission: row[0], count: row[1] }))
+		.map(row => ({ product: row[0], count: row[1] }))
 }
 
 // Return HTML for start page
 app.get("/", (req, res) => {
 	const topX = 10;
-	Promise.all([getMissions(), getPopular(topX)]).then(values => {
-		const missions = values[0]
+	Promise.all([getProducts(), getPopular(topX)]).then(values => {
+		const products = values[0]
+		console.log(values[0])
 		const popular = values[1]
 
-		const missionsHtml = missions.result
-			.map(m => `<a href='missions/${m}'>${m}</a>`)
+		const productsHtml = products.result
+			.map(m => `<a href='products/${m}'>${m}</a>`)
 			.join(", ")
 
 		const popularHtml = popular
-			.map(pop => `<li> <a href='missions/${pop.mission}'>${pop.mission}</a> (${pop.count} views) </li>`)
+			.map(pop => `<li> <a href='products/${pop.product}'>${pop.product}</a> (${pop.count} views) </li>`)
 			.join("\n")
 
 		const html = `
-			<h1>Top ${topX} Missions</h1>		
+			<h1>Top ${topX} Products</h1>		
 			<p>
 				<ol style="margin-left: 2em;"> ${popularHtml} </ol> 
 			</p>
-			<h1>All Missions</h1>
-			<p> ${missionsHtml} </p>
+			<h1>All Products</h1>
+			<p> ${productsHtml} </p>
 		`
-		sendResponse(res, html, missions.cached)
+		const productsHtmlNeu = products.result
+		.map(m => `<div class="col m4">
+		<div class="card">
+			<div class="card-image">
+				<img src="${m[3]}">
+				<span class="card-title" style="width:100%; background: rgba(0, 0, 0, 0.5);">${m[2]}</span>
+			</div>
+			<div class="card-content">
+				<p>${m[1]}</p>
+			</div>
+			<div class="card-action">
+				<a href="#">Buy this article</a>
+			</div>
+			</div>
+		</div>`)
+		.join("")
+		const htmlProducts = `
+		<div class="row">${productsHtmlNeu}</div>
+		`
+		sendResponse(res, html, products.cached, htmlProducts)
 	})
 })
 
 // -------------------------------------------------------
-// Get a specific mission (from cache or DB)
+// Get a specific product (from cache or DB)
 // -------------------------------------------------------
 
-async function getMission(mission) {
-	const query = "SELECT mission, heading, description FROM missions WHERE mission = ?"
-	const key = 'mission_' + mission
+async function getProduct(product) {
+	const query = "SELECT product, heading, description FROM products WHERE product = ?"
+	const key = 'product_' + product
 	let cachedata = await getFromCache(key)
 
 	if (cachedata) {
@@ -217,32 +360,42 @@ async function getMission(mission) {
 	} else {
 		console.log(`Cache miss for key=${key}, querying database`)
 
-		let data = (await executeQuery(query, [mission])).fetchOne()
+		let data = (await executeQuery(query, [product])).fetchOne()
 		if (data) {
-			let result = { mission: data[0], heading: data[1], description: data[2] }
+			let result = { product: data[0], heading: data[1], description: data[2] }
 			console.log(`Got result=${result}, storing in cache`)
 			if (memcached)
 				await memcached.set(key, result, cacheTimeSecs);
 			return { ...result, cached: false }
 		} else {
-			throw "No data found for this mission"
+			throw "No data found for this product"
 		}
 	}
 }
 
-app.get("/missions/:mission", (req, res) => {
-	let mission = req.params["mission"]
+app.get("/products/:product", (req, res) => {
+	let product = req.params["product"]
 
 	// Send the tracking message to Kafka
 	sendTrackingMessage({
-		mission,
+		product,
 		timestamp: Math.floor(new Date() / 1000)
 	}).then(() => console.log("Sent to kafka"))
 		.catch(e => console.log("Error sending to kafka", e))
 
 	// Send reply to browser
-	getMission(mission).then(data => {
-		sendResponse(res, `<h1>${data.mission}</h1><p>${data.heading}</p>` +
+
+	getProduct(product).then(data => {
+		sendResponse(res, `<h1>${data.product}</h1><p>${data.heading}</p>` +
+			data.description.split("\n").map(p => `<p>${p}</p>`).join("\n"),
+			data.cached
+		)
+	}).catch(err => {
+		sendResponse(res, `<h1>Error</h1><p>${err}</p>`, false)
+	})
+	// Send reply to browser
+	getProduct(product).then(data => {
+		sendResponse(res, `<h1>${data.product}</h1><p>${data.heading}</p>` +
 			data.description.split("\n").map(p => `<p>${p}</p>`).join("\n"),
 			data.cached
 		)
