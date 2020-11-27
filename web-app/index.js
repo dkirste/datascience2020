@@ -135,11 +135,7 @@ async function sendTrackingMessage(data) {
 // HTML helper to send a response to the client
 // -------------------------------------------------------
 
-<<<<<<< HEAD
-function sendResponse(res, html, cachedResult) {
-	res.sendFile('./index.html')
-=======
-function sendResponse(res, html, cachedResult, htmlProducts) {
+function sendResponse(res, cachedResult, htmlProducts, ProductsCartHtml) {
 	res.send(`<!DOCTYPE html>
 	<html lang<="en">
 	<head>
@@ -150,7 +146,26 @@ function sendResponse(res, html, cachedResult, htmlProducts) {
 	  <!-- CSS  -->
 	  <link rel = "stylesheet" href = "https://fonts.googleapis.com/icon?family=Material+Icons">
    	  <link rel = "stylesheet" href = "https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
-   	  
+   	  <script>
+				function fetchRandomProducts() {
+					const maxRepetitions = Math.floor(Math.random() * 200)
+					document.getElementById("out").innerText = "Fetching " + maxRepetitions + " random products, see console output"
+					for(var i = 0; i < maxRepetitions; ++i) {
+						const productId = Math.floor(Math.random() * ${numberOfProducts})
+						console.log("Fetching product id " + productId)
+						fetch("/products/p-" + productId, {cache: 'no-cache'})
+					}
+				}
+				function PushProductToCart(product) {
+					sendTrackingMessage({
+						product,
+						timestamp: Math.floor(new Date() / 1000)
+					}).then(() => console.log("Sent to kafka"))
+						.catch(e => console.log("Error sending to kafka", e))
+					console.log("Sending product id " + product +" to Cart")
+				}
+
+		</script>
 	</head>
 	<body>
 	  <nav class="light-blue lighten-1" role="navigation">
@@ -203,9 +218,8 @@ function sendResponse(res, html, cachedResult, htmlProducts) {
 			<div class="col s12 m4">
 			  <div class="icon-block">
 				<h2 class="center light-blue-text"><i class="material-icons">settings</i></h2>
-				<h5 class="center">Easy to work with</h5>
-	
-				<p class="light">We have provided detailed documentation as well as specific code examples to help new users get started. We are also always open to feedback and can answer any questions a user may have about Materialize.</p>
+				<h5 class="center">Shopping Cart</h5>
+				${ProductsCartHtml}
 			  </div>
 			</div>
 		  </div>
@@ -259,7 +273,6 @@ function sendResponse(res, html, cachedResult, htmlProducts) {
 	  </body>
 	</html>
 	`)
->>>>>>> origin/LoadFromDatabase
 }
 
 // -------------------------------------------------------
@@ -298,30 +311,42 @@ async function getPopular(maxCount) {
 		.map(row => ({ product: row[0], count: row[1] }))
 }
 
+async function GetProductsFromCart() {
+	const query = "SELECT product FROM cart"
+	return (await executeQuery(query))
+		.fetchAll()
+		.map(row => ({ product: row[0] }))
+}
+
+
 // Return HTML for start page
 app.get("/", (req, res) => {
 	const topX = 10;
-	Promise.all([getProducts(), getPopular(topX)]).then(values => {
+	Promise.all([getProducts(), GetProductsFromCart()]).then(values => {
 		const products = values[0]
-		console.log(values[0])
-		const popular = values[1]
+		console.log(values[1])
+		//const popular = values[1]
+		const productsincart = values[1]
 
-		const productsHtml = products.result
-			.map(m => `<a href='products/${m}'>${m}</a>`)
-			.join(", ")
+		//const productsHtml = products.result
+		//	.map(m => `<a href='products/${m}'>${m}</a>`)
+		//	.join(", ")
 
-		const popularHtml = popular
-			.map(pop => `<li> <a href='products/${pop.product}'>${pop.product}</a> (${pop.count} views) </li>`)
-			.join("\n")
+		//const popularHtml = popular
+		//	.map(pop => `<li> <a href='products/${pop.product}'>${pop.product}</a> (${pop.count} views) </li>`)
+		//	.join("\n")
+		
+		const ProductsCartHtml = productsincart
+			.map(pc => `<p class="light">${pc.product}</p>`)
 
-		const html = `
-			<h1>Top ${topX} Products</h1>		
-			<p>
-				<ol style="margin-left: 2em;"> ${popularHtml} </ol> 
-			</p>
-			<h1>All Products</h1>
-			<p> ${productsHtml} </p>
-		`
+		//const html = `
+		//	<h1>Top ${topX} Products</h1>		
+		//	<p>
+		//		<ol style="margin-left: 2em;"> ${popularHtml} </ol> 
+		//	</p>
+		//	<h1>All Products</h1>
+		//	<p> ${productsHtml} </p>
+		//`
 		const productsHtmlNeu = products.result
 		.map(m => `<div class="col m4">
 		<div class="card">
@@ -333,7 +358,7 @@ app.get("/", (req, res) => {
 				<p>${m[1]}</p>
 			</div>
 			<div class="card-action">
-				<a href="#">Buy this article</a>
+				<a href="javascript: PushProductToCart(${m[0]});">Buy this article</a>
 			</div>
 			</div>
 		</div>`)
@@ -341,7 +366,7 @@ app.get("/", (req, res) => {
 		const htmlProducts = `
 		<div class="row">${productsHtmlNeu}</div>
 		`
-		sendResponse(res, html, products.cached, htmlProducts)
+		sendResponse(res, products.cached, htmlProducts, ProductsCartHtml)
 	})
 })
 

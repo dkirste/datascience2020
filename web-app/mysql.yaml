@@ -1,0 +1,87 @@
+#Begin: Configmap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-deployment-init-configmap
+data:
+  mysql-init.sql: |
+    CREATE TABLE `products` (
+      `product` VARCHAR(30) NOT NULL,
+      `description`  VARCHAR(5000),
+      `heading` VARCHAR(1000),
+      `picture` VARCHAR(1000),
+      PRIMARY KEY (`product`)
+    );
+
+    CREATE TABLE `popular` (
+      `product` VARCHAR(30) NOT NULL,
+      `count` BIGINT,
+       PRIMARY KEY (`product`)
+    );
+
+    CREATE TABLE `cart` (
+      `product` VARCHAR(30) NOT NULL,
+      `count` BIGINT,
+       PRIMARY KEY (`product`)
+    );
+
+    INSERT INTO products (product, description, heading, picture) VALUES ('p-0', 'This is the future of communication. Call from everywhere.','mobilephone1', 'https://unsplash.com/photos/xsGxhtAsfSA/download?force=true');
+    INSERT INTO products (product, description, heading, picture) VALUES ('p-1', 'This is the future of working. Work from everywhere.','laptop1', 'https://unsplash.com/photos/RDolnHtjVCY/download?force=true');
+    INSERT INTO products (product, description, heading, picture) VALUES ('p-2', 'This is the future of media consumption. Watch your favorite show from everywhere.','tablet1', 'https://unsplash.com/photos/McEaDYCXQdo/download?force=true');
+    INSERT INTO products (product, description, heading, picture) VALUES ('p-3', 'This is the future of call quality. Listen and speak in your calls without cord.','wirelessheadset1', 'https://unsplash.com/photos/d4Bk6VRyfXo/download?force=true');
+    INSERT INTO products (product, description, heading, picture) VALUES ('p-4', 'This is the future of navigating your OS. Steer your mouse by laser.','mouse1', 'https://unsplash.com/photos/RJXpSA2oRB4/download?force=true');
+    INSERT INTO products (product, description, heading, picture) VALUES ('p-5', 'This is the future of writing.','keyboard1', 'https://unsplash.com/photos/gyxVWeC_OfE/download?force=true');
+    
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deployment
+  labels:
+    app: my-mysql-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-mysql
+  template:
+    metadata:
+      labels:
+        app: my-mysql
+    spec:
+      containers:
+        - name: my-mysql
+          image: mysql
+          # Set required environment variables to initialize the container
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "mysecretpw"
+            - name: MYSQL_DATABASE
+              value: "popular"
+          ports:
+            - containerPort: 33060
+          # Mount the volume
+          # Mount configmap at expected location (excerpt)
+          volumeMounts:
+            - name: init-volume
+              mountPath: /docker-entrypoint-initdb.d/
+      volumes:
+        - name: init-volume
+          configMap:
+            name: mysql-deployment-init-configmap
+
+---
+#Begin: Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-mysql-service
+spec:
+  selector:
+    app: my-mysql
+  ports:
+    - name: mysql-xproto
+      protocol: TCP
+      port: 33060
+      targetPort: 33060
+#End: Service
