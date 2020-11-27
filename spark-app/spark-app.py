@@ -85,7 +85,7 @@ def saveToDatabase(batchDataframe, batchId):
 
         for row in iterator:
             # Run upsert (insert or update existing)
-            sql = session.sql("INSERT INTO popular "
+            sql = session.sql("INSERT INTO cart "
                               "(product, count) VALUES (?, ?) "
                               "ON DUPLICATE KEY UPDATE count=?")
             sql.bind(row.product, row.views, row.views).execute()
