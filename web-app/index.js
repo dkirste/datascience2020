@@ -21,6 +21,7 @@ let options = optionparser
 	// Kafka options
 	.option('--kafka-broker <host:port>', "Kafka bootstrap host:port", "my-cluster-kafka-bootstrap:9092")
 	.option('--kafka-topic-tracking <topic>', "Kafka topic to tracking data send to", "tracking-data")
+	.option('--kafka-topic-cart <topic>', "Kafka topic to send cart data to", "cart-data")
 	.option('--kafka-client-id < id > ', "Kafka client ID", "tracker-" + Math.floor(Math.random() * 100000))
 	// Memcached options
 	.option('--memcached-hostname <hostname>', 'Memcached hostname (may resolve to multiple IPs)', 'my-memcached-service')
@@ -131,6 +132,21 @@ async function sendTrackingMessage(data) {
 }
 // End
 
+// Send tracking message to Kafka
+async function sendCartMessage(data) {
+	//Ensure the producer is connected
+	await producer.connect()
+
+	//Send message
+	await producer.send({
+		topic: options.kafkaTopicCart,
+		messages: [
+			{ value: JSON.stringify(data) }
+		]
+	})
+}
+// End
+
 // -------------------------------------------------------
 // HTML helper to send a response to the client
 // -------------------------------------------------------
@@ -147,6 +163,13 @@ function sendResponse(res, html, cachedResult, htmlProducts) {
 	  <link rel = "stylesheet" href = "https://fonts.googleapis.com/icon?family=Material+Icons">
    	  <link rel = "stylesheet" href = "https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
    	  
+	<script>
+		function addToCart(productId) {
+			console.log("Fetching product id " + productId)
+			fetch("/addToCart/p-" + productId, {cache: 'no-cache'})
+		}
+	 </script>
+
 	</head>
 	<body>
 	  <nav class="light-blue lighten-1" role="navigation">
@@ -328,7 +351,7 @@ app.get("/", (req, res) => {
 				<p>${m[1]}</p>
 			</div>
 			<div class="card-action">
-				<a href="#">Buy this article</a>
+				<a href="javascript: addToCart('${m[0]}');">Buy this article</a>
 			</div>
 			</div>
 		</div>`)
@@ -397,6 +420,17 @@ app.get("/products/:product", (req, res) => {
 	}).catch(err => {
 		sendResponse(res, `<h1>Error</h1><p>${err}</p>`, false)
 	})
+});
+
+// AddToCart
+app.get("/addToCart/:product", (req, res) => {
+	// Send the tracking message to Kafka
+	sendCartMessage({
+		product: req.params["product"],
+		timestamp: Math.floor(new Date() / 1000)
+	}).then(() => console.log("Sent to kafka"))
+		.catch(e => console.log("Error sending to kafka", e))
+	res.send(`<h1>Successed!`)
 });
 
 // -------------------------------------------------------

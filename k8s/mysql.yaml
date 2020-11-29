@@ -19,6 +19,12 @@ data:
        PRIMARY KEY (`product`)
     );
 
+    CREATE TABLE `cart` (
+      `product` VARCHAR(30) NOT NULL,
+      `count` BIGINT,
+       PRIMARY KEY (`product`)
+    );
+
     INSERT INTO products (product, description, heading, picture) VALUES ('p-0', 'This is the future of communication. Call from everywhere.','mobilephone1', 'https://unsplash.com/photos/xsGxhtAsfSA/download?force=true');
     INSERT INTO products (product, description, heading, picture) VALUES ('p-1', 'This is the future of working. Work from everywhere.','laptop1', 'https://unsplash.com/photos/RDolnHtjVCY/download?force=true');
     INSERT INTO products (product, description, heading, picture) VALUES ('p-2', 'This is the future of media consumption. Watch your favorite show from everywhere.','tablet1', 'https://unsplash.com/photos/McEaDYCXQdo/download?force=true');
