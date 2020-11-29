@@ -18,6 +18,11 @@ data:
       `count` BIGINT,
        PRIMARY KEY (`product`)
     );
+    CREATE TABLE `cart` (
+      `product` VARCHAR(30) NOT NULL,
+      `count` BIGINT,
+       PRIMARY KEY (`product`)
+    );
 
     INSERT INTO products (product, description, heading, picture) VALUES ('p-0', 'This is the future of communication. Call from everywhere.','mobilephone1', 'https://unsplash.com/photos/xsGxhtAsfSA/download?force=true');
     INSERT INTO products (product, description, heading, picture) VALUES ('p-1', 'This is the future of working. Work from everywhere.','laptop1', 'https://unsplash.com/photos/RDolnHtjVCY/download?force=true');
@@ -25,7 +30,7 @@ data:
     INSERT INTO products (product, description, heading, picture) VALUES ('p-3', 'This is the future of call quality. Listen and speak in your calls without cord.','wirelessheadset1', 'https://unsplash.com/photos/d4Bk6VRyfXo/download?force=true');
     INSERT INTO products (product, description, heading, picture) VALUES ('p-4', 'This is the future of navigating your OS. Steer your mouse by laser.','mouse1', 'https://unsplash.com/photos/RJXpSA2oRB4/download?force=true');
     INSERT INTO products (product, description, heading, picture) VALUES ('p-5', 'This is the future of writing.','keyboard1', 'https://unsplash.com/photos/gyxVWeC_OfE/download?force=true');
-    
+  
 ---
 apiVersion: apps/v1
 kind: Deployment

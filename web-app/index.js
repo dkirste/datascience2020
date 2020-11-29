@@ -135,11 +135,7 @@ async function sendTrackingMessage(data) {
 // HTML helper to send a response to the client
 // -------------------------------------------------------
 
-<<<<<<< HEAD
-function sendResponse(res, html, cachedResult) {
-	res.sendFile('./index.html')
-=======
-function sendResponse(res, html, cachedResult, htmlProducts) {
+function sendResponse(res, html, ProductsCartHtml, cachedResult) {
 	res.send(`<!DOCTYPE html>
 	<html lang<="en">
 	<head>
@@ -150,7 +146,12 @@ function sendResponse(res, html, cachedResult, htmlProducts) {
 	  <!-- CSS  -->
 	  <link rel = "stylesheet" href = "https://fonts.googleapis.com/icon?family=Material+Icons">
    	  <link rel = "stylesheet" href = "https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
-   	  
+   	  <script>
+		function PushProductToCart(product) {
+			fetch("/products/" + product, {cache: 'no-cache'})
+			console.log("Fetching product id " + product)
+		}
+	</script>
 	</head>
 	<body>
 	  <nav class="light-blue lighten-1" role="navigation">
@@ -180,7 +181,7 @@ function sendResponse(res, html, cachedResult, htmlProducts) {
 		
 	
 		  <!--   Icon Section   -->
-			${htmlProducts}
+		  ${html}
 		  <div class="row">
 			<div class="col s12 m4">
 			  <div class="icon-block">
@@ -203,9 +204,8 @@ function sendResponse(res, html, cachedResult, htmlProducts) {
 			<div class="col s12 m4">
 			  <div class="icon-block">
 				<h2 class="center light-blue-text"><i class="material-icons">settings</i></h2>
-				<h5 class="center">Easy to work with</h5>
-	
-				<p class="light">We have provided detailed documentation as well as specific code examples to help new users get started. We are also always open to feedback and can answer any questions a user may have about Materialize.</p>
+				<h5 class="center">Shopping Cart</h5>
+				${ProductsCartHtml}
 			  </div>
 			</div>
 		  </div>
@@ -259,7 +259,6 @@ function sendResponse(res, html, cachedResult, htmlProducts) {
 	  </body>
 	</html>
 	`)
->>>>>>> origin/LoadFromDatabase
 }
 
 // -------------------------------------------------------
@@ -290,7 +289,6 @@ async function getProducts() {
 	}
 }
 
-// Get popular products (from db only)
 async function getPopular(maxCount) {
 	const query = "SELECT product, count FROM popular ORDER BY count DESC LIMIT ?"
 	return (await executeQuery(query, [maxCount]))
@@ -298,13 +296,15 @@ async function getPopular(maxCount) {
 		.map(row => ({ product: row[0], count: row[1] }))
 }
 
+// Get popular products (from db only)
+
 // Return HTML for start page
 app.get("/", (req, res) => {
 	const topX = 10;
 	Promise.all([getProducts(), getPopular(topX)]).then(values => {
 		const products = values[0]
-		console.log(values[0])
 		const popular = values[1]
+
 
 		const productsHtml = products.result
 			.map(m => `<a href='products/${m}'>${m}</a>`)
@@ -314,34 +314,31 @@ app.get("/", (req, res) => {
 			.map(pop => `<li> <a href='products/${pop.product}'>${pop.product}</a> (${pop.count} views) </li>`)
 			.join("\n")
 
-		const html = `
-			<h1>Top ${topX} Products</h1>		
-			<p>
-				<ol style="margin-left: 2em;"> ${popularHtml} </ol> 
-			</p>
-			<h1>All Products</h1>
-			<p> ${productsHtml} </p>
-		`
 		const productsHtmlNeu = products.result
-		.map(m => `<div class="col m4">
-		<div class="card">
-			<div class="card-image">
-				<img src="${m[3]}">
-				<span class="card-title" style="width:100%; background: rgba(0, 0, 0, 0.5);">${m[2]}</span>
-			</div>
-			<div class="card-content">
-				<p>${m[1]}</p>
-			</div>
-			<div class="card-action">
-				<a href="#">Buy this article</a>
-			</div>
-			</div>
-		</div>`)
-		.join("")
-		const htmlProducts = `
-		<div class="row">${productsHtmlNeu}</div>
-		`
-		sendResponse(res, html, products.cached, htmlProducts)
+            .map(m => `<div class="col m4">
+            <div class="card">
+                <div class="card-image">
+                    <img src="${m[3]}">
+                    <span class="card-title" style="width:100%; background: rgba(0, 0, 0, 0.5);">${m[2]}</span>
+                </div>
+                <div class="card-content">
+                    <p>${m[1]}</p>
+                </div>
+                <div class="card-action">
+                    <a href="javascript: PushProductToCart('${m[0]}');">Buy this article</a>
+                </div>
+                </div>
+            </div>`)
+			.join("")
+		
+		const ProductsCartHtml = popular
+          .map(pc => `<p class="light">Product: ${pc.product} Amount: ${pc.count}</p>`)
+          .join("\n")
+		
+		const html = `
+		  <div class="row">${productsHtmlNeu}</div>
+		 `
+		sendResponse(res, html, ProductsCartHtml, products.cached)
 	})
 })
 
@@ -383,16 +380,6 @@ app.get("/products/:product", (req, res) => {
 	}).then(() => console.log("Sent to kafka"))
 		.catch(e => console.log("Error sending to kafka", e))
 
-	// Send reply to browser
-
-	getProduct(product).then(data => {
-		sendResponse(res, `<h1>${data.product}</h1><p>${data.heading}</p>` +
-			data.description.split("\n").map(p => `<p>${p}</p>`).join("\n"),
-			data.cached
-		)
-	}).catch(err => {
-		sendResponse(res, `<h1>Error</h1><p>${err}</p>`, false)
-	})
 	// Send reply to browser
 	getProduct(product).then(data => {
 		sendResponse(res, `<h1>${data.product}</h1><p>${data.heading}</p>` +

@@ -7,13 +7,11 @@ ENV NODE_ENV $NODE_ENV
 
 # Install dependencies
 WORKDIR /app
-COPY package.json package-lock.json /app/ index.html
+COPY package.json package-lock.json /app/
 RUN npm install --no-optional && npm cache clean --force
 
 # Install app
 COPY *.js /app/
-#COPY ./css/* /app/css/
-#COPY ./js/* /app/js/
 
 # Export app port and set entrypoint at startup
 EXPOSE 3000
