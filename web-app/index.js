@@ -21,6 +21,7 @@ let options = optionparser
 	// Kafka options
 	.option('--kafka-broker <host:port>', "Kafka bootstrap host:port", "my-cluster-kafka-bootstrap:9092")
 	.option('--kafka-topic-tracking <topic>', "Kafka topic to tracking data send to", "tracking-data")
+	.option('--kafka-topic-shopping-card <topic>', "Kafka topic to send shopping card to", "shopping-card")
 	.option('--kafka-client-id < id > ', "Kafka client ID", "tracker-" + Math.floor(Math.random() * 100000))
 	// Memcached options
 	.option('--memcached-hostname <hostname>', 'Memcached hostname (may resolve to multiple IPs)', 'my-memcached-service')
@@ -116,14 +117,28 @@ const kafka = new Kafka({
 const producer = kafka.producer()
 // End
 
-// Send tracking message to Kafka
-async function sendTrackingMessage(data) {
+// Send buying product message to Kafka
+async function buyProductKafka(data) {
 	//Ensure the producer is connected
 	await producer.connect()
 
 	//Send message
 	await producer.send({
 		topic: options.kafkaTopicTracking,
+		messages: [
+			{ value: JSON.stringify(data) }
+		]
+	})
+}
+
+// Send buying product message to Kafka
+async function addShoppingcardKafka(data) {
+	//Ensure the producer is connected
+	await producer.connect()
+
+	//Send message
+	await producer.send({
+		topic: options.kafkaTopicShoppingCard,
 		messages: [
 			{ value: JSON.stringify(data) }
 		]
@@ -372,7 +387,7 @@ app.get("/products/:product", (req, res) => {
 	let product = req.params["product"]
 
 	// Send the tracking message to Kafka
-	sendTrackingMessage({
+	buyProductKafka({
 		product,
 		timestamp: Math.floor(new Date() / 1000)
 	}).then(() => console.log("Sent to kafka"))
