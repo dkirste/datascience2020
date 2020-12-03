@@ -186,18 +186,18 @@ function sendResponse(res, html, ProductsCartHtml, cachedResult) {
 			<div class="col s12 m4">
 			  <div class="icon-block">
 				<h2 class="center light-blue-text"><i class="material-icons">flash_on</i></h2>
-				<h5 class="center">Top 5 Products in last 10 Minutes!</h5>
+				<h5 class="center">We recommend</h5>
 	
-				<p class="light">We did most of the heavy lifting for you to provide a default stylings that incorporate our custom components. Additionally, we refined animations and transitions to provide a smoother experience for developers.</p>
+				<p class="light">All products you see are curated by our team of experts for it products. It's not any stupid algorithm.</p>
 			  </div>
 			</div>
 	
 			<div class="col s12 m4">
 			  <div class="icon-block">
 				<h2 class="center light-blue-text"><i class="material-icons">group</i></h2>
-				<h5 class="center">Bestselling products alltime!</h5>
+				<h5 class="center">30 days return policy</h5>
 	
-				<p class="light">By utilizing elements and principles of Material Design, we were able to create a framework that incorporates components and animations that provide more feedback to users. Additionally, a single underlying responsive system across all platforms allow for a more unified user experience.</p>
+				<p class="light">In the event of you not liking the product (nearly impossible), feel free to return it up to 30 days after purchasing.</p>
 			  </div>
 			</div>
 	
@@ -218,27 +218,21 @@ function sendResponse(res, html, ProductsCartHtml, cachedResult) {
 		<div class="container">
 		  <div class="row">
 			<div class="col l6 s12">
-			  <h5 class="white-text">Company Bio</h5>
-			  <p class="grey-text text-lighten-4">We are a team of college students working on this project like it's our full time job. Any amount would help support and continue development on this project and is greatly appreciated.</p>
+			  <h5 class="white-text">Why are we the best shop in the world?</h5>
+			  <p class="grey-text text-lighten-4">We deliver excellence. We know what you need before you know.</p>
 	
 	
 			</div>
 			<div class="col l3 s12">
 			  <h5 class="white-text">Settings</h5>
 			  <ul>
-				<li><a class="white-text" href="#!">Link 1</a></li>
-				<li><a class="white-text" href="#!">Link 2</a></li>
-				<li><a class="white-text" href="#!">Link 3</a></li>
-				<li><a class="white-text" href="#!">Link 4</a></li>
+				<li><a class="white-text" href="#!">Account Details</a></li>
 			  </ul>
 			</div>
 			<div class="col l3 s12">
 			  <h5 class="white-text">Connect</h5>
 			  <ul>
-				<li><a class="white-text" href="#!">Link 1</a></li>
-				<li><a class="white-text" href="#!">Link 2</a></li>
-				<li><a class="white-text" href="#!">Link 3</a></li>
-				<li><a class="white-text" href="#!">Link 4</a></li>
+				<li><a class="white-text" href="#!">Logout</a></li>
 			  </ul>
 			</div>
 		  </div>
