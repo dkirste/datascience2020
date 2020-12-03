@@ -135,7 +135,7 @@ async function sendTrackingMessage(data) {
 // HTML helper to send a response to the client
 // -------------------------------------------------------
 
-function sendResponse(res, html, ProductsCartHtml, cachedResult) {
+function sendResponse(res, productCarts, shoppingCart, cachedResult) {
 	res.send(`<!DOCTYPE html>
 	<html lang<="en">
 	<head>
@@ -181,7 +181,7 @@ function sendResponse(res, html, ProductsCartHtml, cachedResult) {
 		
 	
 		  <!--   Icon Section   -->
-		  ${html}
+		  ${productCarts}
 		  <div class="row">
 			<div class="col s12 m4">
 			  <div class="icon-block">
@@ -205,7 +205,7 @@ function sendResponse(res, html, ProductsCartHtml, cachedResult) {
 			  <div class="icon-block">
 				<h2 class="center light-blue-text"><i class="material-icons">settings</i></h2>
 				<h5 class="center">Shopping Cart</h5>
-				${ProductsCartHtml}
+				${shoppingCart}
 			  </div>
 			</div>
 		  </div>
@@ -290,7 +290,7 @@ async function getShoppingCart(maxCount) {
 		.map(row => ({ product: row[0], count: row[1] }))
 }
 
-// Get popular products (from db only)
+// Get  products (from db only)
 
 // Return HTML for start page
 app.get("/", (req, res) => {
@@ -300,7 +300,7 @@ app.get("/", (req, res) => {
 		const cartContent = values[1]
 
 
-		const productsHtmlNeu = products.result
+		const cardContent = products.result
             .map(m => `<div class="col m4">
             <div class="card">
                 <div class="card-image">
@@ -317,14 +317,14 @@ app.get("/", (req, res) => {
             </div>`)
 			.join("")
 		
-		const ProductsCartHtml = cartContent
+		const ShoppingCart = cartContent
           .map(pc => `<p class="light">Product: ${pc.product} Amount: ${pc.count}</p>`)
           .join("\n")
 		
-		const html = `
-		  <div class="row">${productsHtmlNeu}</div>
+		const productCarts = `
+		  <div class="row">${cardContent}</div>
 		 `
-		sendResponse(res, html, ProductsCartHtml, products.cached)
+		sendResponse(res, productCarts, ShoppingCart, products.cached)
 	})
 })
 
