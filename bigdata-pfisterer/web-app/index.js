@@ -289,7 +289,7 @@ async function getProducts() {
 	}
 }
 
-async function getPopular(maxCount) {
+async function getShoppingCart(maxCount) {
 	const query = "SELECT product, count FROM popular ORDER BY count DESC LIMIT ?"
 	return (await executeQuery(query, [maxCount]))
 		.fetchAll()
@@ -300,19 +300,11 @@ async function getPopular(maxCount) {
 
 // Return HTML for start page
 app.get("/", (req, res) => {
-	const topX = 10;
-	Promise.all([getProducts(), getPopular(topX)]).then(values => {
+	const productCount = 10;
+	Promise.all([getProducts(), getShoppingCart(productCount)]).then(values => {
 		const products = values[0]
-		const popular = values[1]
+		const cartContent = values[1]
 
-
-		const productsHtml = products.result
-			.map(m => `<a href='products/${m}'>${m}</a>`)
-			.join(", ")
-
-		const popularHtml = popular
-			.map(pop => `<li> <a href='products/${pop.product}'>${pop.product}</a> (${pop.count} views) </li>`)
-			.join("\n")
 
 		const productsHtmlNeu = products.result
             .map(m => `<div class="col m4">
@@ -331,7 +323,7 @@ app.get("/", (req, res) => {
             </div>`)
 			.join("")
 		
-		const ProductsCartHtml = popular
+		const ProductsCartHtml = cartContent
           .map(pc => `<p class="light">Product: ${pc.product} Amount: ${pc.count}</p>`)
           .join("\n")
 		
