@@ -148,7 +148,7 @@ function sendResponse(res, html, ProductsCartHtml, cachedResult) {
    	  <link rel = "stylesheet" href = "https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
    	  <script>
 		function PushProductToCart(product) {
-			fetch("/products/" + product, {cache: 'no-cache'})
+			fetch("/pushToCart/" + product, {cache: 'no-cache'})
 			console.log("Fetching product id " + product)
 		}
 	</script>
@@ -342,53 +342,15 @@ app.get("/", (req, res) => {
 	})
 })
 
-// -------------------------------------------------------
-// Get a specific product (from cache or DB)
-// -------------------------------------------------------
-
-async function getProduct(product) {
-	const query = "SELECT product, heading, description FROM products WHERE product = ?"
-	const key = 'product_' + product
-	let cachedata = await getFromCache(key)
-
-	if (cachedata) {
-		console.log(`Cache hit for key=${key}, cachedata = ${cachedata}`)
-		return { ...cachedata, cached: true }
-	} else {
-		console.log(`Cache miss for key=${key}, querying database`)
-
-		let data = (await executeQuery(query, [product])).fetchOne()
-		if (data) {
-			let result = { product: data[0], heading: data[1], description: data[2] }
-			console.log(`Got result=${result}, storing in cache`)
-			if (memcached)
-				await memcached.set(key, result, cacheTimeSecs);
-			return { ...result, cached: false }
-		} else {
-			throw "No data found for this product"
-		}
-	}
-}
-
-app.get("/products/:product", (req, res) => {
-	let product = req.params["product"]
-
+// PushToCart
+app.get("/pushToCart/:product", (req, res) => {
 	// Send the tracking message to Kafka
 	sendTrackingMessage({
-		product,
+		product: req.params["product"],
 		timestamp: Math.floor(new Date() / 1000)
 	}).then(() => console.log("Sent to kafka"))
 		.catch(e => console.log("Error sending to kafka", e))
-
-	// Send reply to browser
-	getProduct(product).then(data => {
-		sendResponse(res, `<h1>${data.product}</h1><p>${data.heading}</p>` +
-			data.description.split("\n").map(p => `<p>${p}</p>`).join("\n"),
-			data.cached
-		)
-	}).catch(err => {
-		sendResponse(res, `<h1>Error</h1><p>${err}</p>`, false)
-	})
+	res.send(`<h1>Successed!`)
 });
 
 // -------------------------------------------------------
