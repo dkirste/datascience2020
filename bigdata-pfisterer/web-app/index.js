@@ -20,7 +20,7 @@ let options = optionparser
 	.option('--port <port>', "Web server port", 3000)
 	// Kafka options
 	.option('--kafka-broker <host:port>', "Kafka bootstrap host:port", "my-cluster-kafka-bootstrap:9092")
-	.option('--kafka-topic-tracking <topic>', "Kafka topic to tracking data send to", "tracking-data")
+	.option('--kafka-topic-tracking <topic>', "Kafka topic to tracking data send to", "cart-data")
 	.option('--kafka-client-id < id > ', "Kafka client ID", "tracker-" + Math.floor(Math.random() * 100000))
 	// Memcached options
 	.option('--memcached-hostname <hostname>', 'Memcached hostname (may resolve to multiple IPs)', 'my-memcached-service')
@@ -29,7 +29,7 @@ let options = optionparser
 	// Database options
 	.option('--mysql-host <host>', 'MySQL host', 'my-app-mysql-service')
 	.option('--mysql-port <port>', 'MySQL port', 33060)
-	.option('--mysql-schema <db>', 'MySQL Schema/database', 'popular')
+	.option('--mysql-schema <db>', 'MySQL Schema/database', 'webshop')
 	.option('--mysql-username <username>', 'MySQL username', 'root')
 	.option('--mysql-password <password>', 'MySQL password', 'mysecretpw')
 	// Misc
@@ -284,7 +284,7 @@ async function getProducts() {
 }
 
 async function getShoppingCart(maxCount) {
-	const query = "SELECT product, count FROM popular ORDER BY count DESC LIMIT ?"
+	const query = "SELECT product, count FROM cart ORDER BY count DESC LIMIT ?"
 	return (await executeQuery(query, [maxCount]))
 		.fetchAll()
 		.map(row => ({ product: row[0], count: row[1] }))

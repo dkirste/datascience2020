@@ -4,7 +4,7 @@ from pyspark.sql.types import IntegerType, StringType, StructType, TimestampType
 import mysqlx
 
 dbOptions = {"host": "my-app-mysql-service", 'port': 33060, "user": "root", "password": "mysecretpw"}
-dbSchema = 'popular'
+dbSchema = 'webshop'
 windowDuration = '5 minutes'
 slidingDuration = '1 minute'
 
@@ -23,7 +23,7 @@ kafkaMessages = spark \
     .format("kafka") \
     .option("kafka.bootstrap.servers",
             "my-cluster-kafka-bootstrap:9092") \
-    .option("subscribe", "tracking-data") \
+    .option("subscribe", "cart-data") \
     .option("startingOffsets", "earliest") \
     .load()
 
@@ -81,11 +81,11 @@ def saveToDatabase(batchDataframe, batchId):
     def save_to_db(iterator):
         # Connect to database and use schema
         session = mysqlx.get_session(dbOptions)
-        session.sql("USE popular").execute()
+        session.sql("USE webshop").execute()
 
         for row in iterator:
             # Run upsert (insert or update existing)
-            sql = session.sql("INSERT INTO popular "
+            sql = session.sql("INSERT INTO cart "
                               "(product, count) VALUES (?, ?) "
                               "ON DUPLICATE KEY UPDATE count=?")
             sql.bind(row.product, row.views, row.views).execute()
