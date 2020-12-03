@@ -283,9 +283,9 @@ async function getProducts() {
 	}
 }
 
-async function getShoppingCart(procductCount) {
+async function getShoppingCart(productCount) {
 	const query = "SELECT product, count FROM cart ORDER BY count DESC LIMIT ?"
-	return (await executeQuery(query, [procductCount]))
+	return (await executeQuery(query, [productCount]))
 		.fetchAll()
 		.map(row => ({ product: row[0], count: row[1] }))
 }
