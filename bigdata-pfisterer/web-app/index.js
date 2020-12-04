@@ -20,6 +20,7 @@ let options = optionparser
 	.option('--port <port>', "Web server port", 3000)
 	// Kafka options
 	.option('--kafka-broker <host:port>', "Kafka bootstrap host:port", "my-cluster-kafka-bootstrap:9092")
+	// Changed the kafka Topic to cart-data
 	.option('--kafka-topic-tracking <topic>', "Kafka topic to tracking data send to", "cart-data")
 	.option('--kafka-client-id < id > ', "Kafka client ID", "tracker-" + Math.floor(Math.random() * 100000))
 	// Memcached options
@@ -136,6 +137,9 @@ async function sendTrackingMessage(data) {
 // -------------------------------------------------------
 
 function sendResponse(res, productCarts, shoppingCart, cachedResult) {
+
+	// The webpage is based on the materialized frameowork and uses the cdn for loading css files
+	// Inserted variables are productCarts and shoppingCart
 	res.send(`<!DOCTYPE html>
 	<html lang<="en">
 	<head>
@@ -283,6 +287,8 @@ async function getProducts() {
 	}
 }
 
+// This function is responsible for fetching the shoppingcart of the database
+// It just uses the database and NOT the memcached server.
 async function getShoppingCart(productCount) {
 	const query = "SELECT product, count FROM cart ORDER BY count DESC LIMIT ?"
 	return (await executeQuery(query, [productCount]))
@@ -290,36 +296,42 @@ async function getShoppingCart(productCount) {
 		.map(row => ({ product: row[0], count: row[1] }))
 }
 
-// Get  products (from db only)
-
 // Return HTML for start page
 app.get("/", (req, res) => {
-	const productCount = 10;
+	const productCount = 6;
 	Promise.all([getProducts(), getShoppingCart(productCount)]).then(values => {
 		const products = values[0]
 		const cartContent = values[1]
-
+		
+		// This returns the content inside of the card
+		// p[0] -> product ID
+		// p[1] -> Description
+		// p[2] -> Product title
+		// p[3] -> Link to product image
 		const cardContent = products.result
-            .map(m => `<div class="col m4">
+            .map(p => `<div class="col m4">
             <div class="card">
                 <div class="card-image">
-                    <img src="${m[3]}">
-                    <span class="card-title" style="width:100%; background: rgba(0, 0, 0, 0.5);">${m[2]}</span>
+                    <img src="${p[3]}">
+                    <span class="card-title" style="width:100%; background: rgba(0, 0, 0, 0.5);">${p[2]}</span>
                 </div>
                 <div class="card-content">
-                    <p>${m[1]}</p>
+                    <p>${p[1]}</p>
                 </div>
                 <div class="card-action">
-                    <a href="javascript: PushProductToCart('${m[0]}');">Buy this article</a>
+                    <a href="javascript: PushProductToCart('${p[0]}');">Buy this article</a>
                 </div>
                 </div>
             </div>`)
 			.join("")
 		
+		// This return the content of the Shopping cart.
+		// Maps the shoppingCart table.
 		const ShoppingCart = cartContent
           .map(pc => `<p class="light">Product: ${pc.product} Amount: ${pc.count}</p>`)
           .join("\n")
 		
+		// This variable creates the row for all cards.
 		const productCarts = `
 		  <div class="row">${cardContent}</div>
 		 `
@@ -327,7 +339,9 @@ app.get("/", (req, res) => {
 	})
 })
 
-// PushToCart
+// This is responsible for pushing new articles into shopping card
+// It basically executes the sendTrackingMessage function with the product as a parameter
+// The site is not displayed. It will only be addressed by the "Buy this article" button.
 app.get("/pushToCart/:product", (req, res) => {
 	// Send the tracking message to Kafka
 	sendTrackingMessage({
